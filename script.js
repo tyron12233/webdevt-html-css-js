@@ -79,11 +79,9 @@ function createFloatingShapes() {
     heroSection.appendChild(shapesContainer);
 }
 
-// Create photo gallery
 function createPhotoGallery() {
     const galleryContainer = document.querySelector('.photo-gallery');
 
-    // Sample photos - you can replace these URLs with your actual photos
     const photos = [
         {
             src: 'https://placehold.co/300x300/fde8e7/31111d?text=Profile',
@@ -105,7 +103,6 @@ function createPhotoGallery() {
 
     const sizes = ['large', 'medium', 'medium', 'large'];
 
-    // Create staggered photo bubbles
     photos.forEach((photo, index) => {
         const photoBubble = document.createElement('div');
         photoBubble.className = `photo-bubble ${sizes[index]}`;
@@ -115,7 +112,6 @@ function createPhotoGallery() {
         galleryContainer.appendChild(photoBubble);
     });
 
-    // Add click handlers for photo bubbles
     galleryContainer.addEventListener('click', function (event) {
         if (event.target.tagName === 'IMG') {
             // Add a subtle animation feedback
@@ -149,13 +145,6 @@ function createProjectCards() {
             </div>
         `;
 
-        projectCol.addEventListener('click', function () {
-            // change the color randomly when the project card is clicked
-            const colors = ['#fde8e7', '#fef7ff', '#fff7f5', '#f5f8ff', '#f5fff5'];
-            const randomColor = colors[Math.floor(Math.random() * colors.length)];
-            projectCol.style.backgroundColor = randomColor;
-        });
-
         portfolioContainer.appendChild(projectCol);
     });
 }
@@ -174,7 +163,6 @@ function createModals() {
 
         let modalBodyContent = `<p>${project.details.description}</p>`;
 
-        // Add features if they exist
         if (project.details.features) {
             modalBodyContent += `
                 <h6>Key Features:</h6>
@@ -184,7 +172,6 @@ function createModals() {
             `;
         }
 
-        // Add upcoming features if they exist
         if (project.details.upcoming) {
             modalBodyContent += `
                 <h6>Upcoming Features:</h6>
@@ -252,6 +239,72 @@ function setupPortfolioColorChanger() {
     });
 }
 
+
+function setupProjectCardColorChanger() {
+    // Material 3 sample dynamic neutral / primary / tertiary container tones
+    const material3Colors = [
+        '#FFFBFE', // surface
+        '#FDE8E7', // primary container (rose)
+        '#E8F5E8', // secondary container (green)
+        '#E8E8FD', // tertiary container (indigo)
+        '#FDE8FD', // secondary container (pink)
+        '#E3F2FD', // blue 50
+        '#FFF3E0', // orange 50
+        '#E8F0FE', // google blue tint
+        '#E0F7FA', // cyan 50
+        '#F1F8E9', // light green 50
+        '#F3E5F5', // purple 50
+        '#EDE7F6'  // deep purple 50
+    ];
+
+    const portfolioRow = document.querySelector('#portfolio .row');
+    if (!portfolioRow) return;
+
+    function getContrastColor(hex) {
+        // Remove leading #
+        const h = hex.replace('#', '');
+        const r = parseInt(h.substring(0, 2), 16);
+        const g = parseInt(h.substring(2, 4), 16);
+        const b = parseInt(h.substring(4, 6), 16);
+        // Per W3C relative luminance
+        const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+        return luminance > 0.7 ? '#201a1b' : '#ffffff'; // dark text on very light colors else white
+    }
+
+    portfolioRow.addEventListener('click', (e) => {
+        const card = e.target.closest('.project-card');
+        if (!card) return;
+        const prevIndex = parseInt(card.dataset.colorIndex || '-1', 10);
+        let newIndex;
+        do {
+            newIndex = Math.floor(Math.random() * material3Colors.length);
+        } while (material3Colors.length > 1 && newIndex === prevIndex);
+
+        const newColor = material3Colors[newIndex];
+        card.style.backgroundColor = newColor;
+        card.style.borderColor = '#85737655';
+        const textColor = getContrastColor(newColor);
+        card.querySelectorAll('.project-title, .project-description').forEach(el => {
+            el.style.color = textColor;
+        });
+
+
+        const btn = card.querySelector('.btn-primary');
+        if (btn) {
+            if (textColor === '#ffffff') {
+                btn.style.backgroundColor = 'rgba(0,0,0,0.7)';
+                btn.style.borderColor = 'rgba(0,0,0,0.7)';
+                btn.style.color = '#ffffff';
+            } else {
+                btn.style.backgroundColor = 'var(--primary-color)';
+                btn.style.borderColor = 'var(--primary-color)';
+                btn.style.color = '#ffffff';
+            }
+        }
+        card.dataset.colorIndex = newIndex.toString();
+    });
+}
+
 // Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', function () {
     createFloatingShapes();
@@ -260,4 +313,5 @@ document.addEventListener('DOMContentLoaded', function () {
     createModals();
     setupContactForm();
     setupPortfolioColorChanger();
+    setupProjectCardColorChanger();
 });
