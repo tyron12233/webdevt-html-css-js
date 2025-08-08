@@ -149,6 +149,13 @@ function createProjectCards() {
             </div>
         `;
 
+        projectCol.addEventListener('click', function () {
+            // change the color randomly when the project card is clicked
+            const colors = ['#fde8e7', '#fef7ff', '#fff7f5', '#f5f8ff', '#f5fff5'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            projectCol.style.backgroundColor = randomColor;
+        });
+
         portfolioContainer.appendChild(projectCol);
     });
 }
