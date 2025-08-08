@@ -349,6 +349,7 @@ body {
     height: 100%;
     object-fit: cover;
     display: block;
+    transition: opacity 0.25s ease;
 }
 
 .photo-bubble.large {

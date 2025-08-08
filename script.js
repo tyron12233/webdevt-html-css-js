@@ -112,15 +112,52 @@ function createPhotoGallery() {
         galleryContainer.appendChild(photoBubble);
     });
 
+    // Predefined placeholder color/text combos to rotate through
+    const placeholderPalette = [
+        { bg: 'fde8e7', text: '31111d' }, // rose
+        { bg: 'e8f5e8', text: '1d311d' }, // green
+        { bg: 'e8e8fd', text: '1d1d31' }, // indigo
+        { bg: 'fde8fd', text: '31111d' }, // pink
+        { bg: 'fff3e0', text: '31111d' }, // orange tint
+        { bg: 'e0f7fa', text: '1d3131' }, // cyan
+        { bg: 'f1f8e9', text: '1d311d' }, // light green
+        { bg: 'f3e5f5', text: '31111d' }  // purple
+    ];
+
     galleryContainer.addEventListener('click', function (event) {
-        if (event.target.tagName === 'IMG') {
-            // Add a subtle animation feedback
-            const bubble = event.target.parentElement;
-            bubble.style.transform = 'scale(0.95)';
-            setTimeout(() => {
-                bubble.style.transform = '';
-            }, 150);
-        }
+        const img = event.target;
+        if (img.tagName !== 'IMG') return;
+
+        // Subtle feedback animation on the containing bubble
+        const bubble = img.parentElement;
+        bubble.style.transform = 'scale(0.95)';
+        setTimeout(() => { bubble.style.transform = ''; }, 150);
+
+        // Only process if it's a placehold.co image
+        if (!/placehold\.co/.test(img.src)) return;
+
+        // Extract current bg color part after size (e.g., 300x300/<bg>/<text>?text=Label)
+        const url = new URL(img.src);
+        const pathParts = url.pathname.split('/').filter(Boolean); // ["300x300","fde8e7","31111d"]
+        if (pathParts.length < 3) return;
+        const currentBg = pathParts[1].toLowerCase();
+        const label = (url.searchParams.get('text') || img.alt || '').trim() || 'Photo';
+
+        // Pick a different palette entry
+        const currentIndex = placeholderPalette.findIndex(p => p.bg === currentBg);
+        let newIndex;
+        do {
+            newIndex = Math.floor(Math.random() * placeholderPalette.length);
+        } while (placeholderPalette.length > 1 && newIndex === currentIndex);
+
+        const { bg, text } = placeholderPalette[newIndex];
+
+        // Smooth fade swap
+        img.style.opacity = '0';
+        setTimeout(() => {
+            img.src = `https://placehold.co/300x300/${bg}/${text}?text=${encodeURIComponent(label)}`;
+            img.style.opacity = '1';
+        }, 180);
     });
 }
 
